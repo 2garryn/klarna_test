@@ -1,7 +1,7 @@
 all: clean compile test
 
 clean:
-	rm ebin/*
+	rm -f ebin/*.beam
 compile:
 	erlc -o ebin/ src/*
 test:
