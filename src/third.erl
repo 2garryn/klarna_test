@@ -51,8 +51,10 @@ extract_token(Str) ->
    Extracted = lists:dropwhile(fun(El) -> El =:= ?SPACE end, Str),
    extract_token(Extracted, []).
 
-extract_token([Op|Tail], [])       when ?IS_OP(Op)  -> {Op, Tail};
-extract_token([Op|_Tail], _StrNum) when ?IS_OP(Op)  -> error(invalid_expr);
+
+extract_token([$-, S|Tail], StrNum) when S /= ?SPACE -> extract_token(Tail, [S, $-|StrNum]);
+extract_token([Op|Tail], [])        when ?IS_OP(Op)  -> {Op, Tail};
+extract_token([Op|_Tail], _StrNum)  when ?IS_OP(Op)  -> error(invalid_expr);
 extract_token([?SPACE|Tail], StrNum)                -> {lists:reverse(StrNum), Tail};
 extract_token([], StrNum)                           -> {lists:reverse(StrNum), []};
 extract_token([S|Tail], StrNum)                     -> extract_token(Tail, [S|StrNum]).
@@ -83,6 +85,9 @@ maybe_to_int(Number) ->
 calculator_test() ->
     ?assertMatch(3, calculator("3 2 1 - *")),
     ?assertMatch(6, calculator("7 4 5 + * 3 - 10 /")),
+    ?assertMatch(-1, calculator("7 4 -5 + * 3 - 10 /")),
+    ?assertMatch(0, calculator("-1 1 +")),
+    ?assertMatch(0, calculator("1 -1 +")),
     ?assertMatch(3, calculator("3")),
     ?assertMatch(0, calculator("")),
     ?assertMatch(0, calculator("0")),
